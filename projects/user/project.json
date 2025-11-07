@@ -1,0 +1,42 @@
+{
+  "name": "user",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/user/src",
+  "projectType": "application",
+  "tags": ["v1"],
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "./dist/user",
+        "commands": ["rollup -c apps/user/rollup.config.mjs"]
+      }
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "oxlint --deny-warnings --fix --tsconfig=./tsconfig.json src/ tests/"
+        ],
+        "cwd": "apps/user"
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/user/jest.config.ts",
+        "testTimeout": 60000
+      }
+    },
+    "start": {
+      "executor": "nx:run-commands",
+      "outputs": ["{projectRoot}/src/libs/graphql-types.ts"],
+      "options": {
+        "command": "ts-node --project ./tsconfig.app.json ./main.ts -m api",
+        "cwd": "projects/user"
+      }
+    }
+  }
+}
