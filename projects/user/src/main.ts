@@ -19,7 +19,6 @@ async function bootstrap() {
     });
 
     app.enableShutdownHooks(SHUTDOWN_SIGNALS);
-    app.setGlobalPrefix('v1');
     app.useGlobalPipes(
       new ValidationPipe({
         whitelist: true,
@@ -29,7 +28,7 @@ async function bootstrap() {
       }),
     );
 
-    const port = parseInt(process.env.PORT || '3000', 10);
+    const port = parseInt(process.env['PORT'] || '3000', 10);
 
     const server: Server = app.getHttpAdapter().getHttpServer();
     server.keepAliveTimeout = 35 * 1000;

@@ -12,13 +12,17 @@ export class JobService {
     private readonly jobs: JobRepository,
   ) {}
 
-  async createJob(input: Omit<Job, 'id' | 'dateTimeCreated' | 'status'>) {
+  async createJob(
+    input: Omit<Job, 'id' | 'dateTimeCreated' | 'status'> & {
+      status?: JobStatus;
+    },
+  ) {
     const id = ObjectId.generate(ObjectType.Job);
     await this.jobs.create({
-      ...input,
       status: JobStatus.Pending,
       dateTimeCreated: new Date(),
       id,
+      ...input,
     });
   }
 
@@ -27,6 +31,10 @@ export class JobService {
     input: Partial<Omit<Job, 'id' | 'dateTimeCreated'>>,
   ) {
     await this.jobs.update(id, input);
+  }
+
+  async deleteJob(filter: Filter<Job>) {
+    await this.jobs.delete(filter);
   }
 
   async addSendBirthdayMessageEntry(params: { user: ObjectId; dueDate: Date }) {

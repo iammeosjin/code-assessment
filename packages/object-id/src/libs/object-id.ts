@@ -1,3 +1,4 @@
+import bs58 from 'bs58';
 import { randomBytes } from 'crypto';
 
 let counter = randomBytes(4).readUInt32BE(0) & 0xffffffff;
@@ -45,7 +46,7 @@ export class ObjectId {
         throw new Error('String value exceeds the limit of 20 characters');
       }
 
-      return new ObjectId(Buffer.from(ObjectId._fromUrlSafe(value)));
+      return new ObjectId(Buffer.from(bs58.decode(value)));
     }
 
     if (value instanceof Buffer) {
@@ -55,30 +56,13 @@ export class ObjectId {
     throw new Error('Invalid value type. Expected string or Buffer.');
   }
 
-  static _toUrlSafe(buffer: Buffer): string {
-    return buffer
-      .toString('base64')
-      .replace(/\+/g, '-')
-      .replace(/\//g, '_')
-      .replace(/=+$/, '');
-  }
-
-  static _fromUrlSafe(str: string): Buffer {
-    const base64 = str
-      .replace(/-/g, '+')
-      .replace(/_/g, '/')
-      .padEnd(str.length + ((4 - (str.length % 4)) % 4), '=');
-
-    return Buffer.from(base64, 'base64');
-  }
-
   public equals(other: ObjectId) {
     return this._buffer.equals(<Uint8Array>other._buffer);
   }
 
   public toString(encoding?: 'hex' | 'base64') {
     if (!encoding || encoding === 'base64') {
-      return ObjectId._toUrlSafe(this._buffer);
+      return bs58.encode(<Uint8Array>this._buffer);
     }
 
     return this._buffer.toString(encoding);

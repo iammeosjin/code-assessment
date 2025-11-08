@@ -77,60 +77,54 @@ export class SchedulerService {
     }
   }
 
-  @Cron(CronExpression.EVERY_MINUTE)
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async updateJobs() {
     const now = DateTime.now().setZone('utc');
 
     const filter = {
       type: JobType.SendBirthdayMessage,
-      dueDate: { lesserThanOrEqual: now.endOf('day').toJSDate() },
+      dueDate: { lesserThanOrEqual: now.startOf('day').toJSDate() },
       status: { in: [JobStatus.Success] },
     };
 
     const jobs = await this.job.find(filter);
 
-    for (const batch of R.splitEvery(5, jobs)) {
-      await asyncMap(batch, async (job) => {
-        if (!job?.data?.users?.length) return;
+    const groupedJobs = jobs.reduce(
+      (groupedJobs, job) => {
+        const updatedJobs = groupedJobs[job.dueDate.toISOString()];
 
-        const users = await this.user.find({
-          id: { in: job.data.users.map((user) => ObjectId.from(user.buffer)) },
-        });
-
-        const [, error] = await gotry(
-          asyncMap(
-            users,
-            async (user) => {
-              const message = await this.message.findOne({
-                recipient: user.id,
-              });
-              if (
-                message?.dateTimeCreated.getFullYear() ===
-                new Date().getFullYear()
-              )
-                return;
-
-              await this.message.sendBirthdayMessage({
-                title: JobType.SendBirthdayMessage,
-                recipient: user.id,
-                fullName: `${user.firstName} ${user.lastName}`,
-              });
+        if (!updatedJobs) {
+          return {
+            [job.dueDate.toISOString()]: {
+              dueDate: job.dueDate,
+              users: job.data.users,
             },
-            {
-              concurrency: parseInt(
-                this.config.get('WORKER_CONCURRENCY') || '2',
-              ),
-            },
-          ),
+          };
+        }
+
+        updatedJobs.users = Array.from(
+          new Set<ObjectId>([...updatedJobs.users, ...job.data.users]),
         );
 
-        if (error) {
-          console.error(error);
-          await this.job.failJob(job.id, { error: error.message });
-          return;
-        }
-        await this.job.completeJob(job.id);
-      });
-    }
+        return groupedJobs;
+      },
+      {} as Record<string, { dueDate: Date; users: ObjectId[] }>,
+    );
+
+    await asyncMap(
+      Object.values(groupedJobs),
+      async (job) => {
+        await this.job.createJob({
+          status: JobStatus.Success,
+          dueDate: job.dueDate,
+          data: { users: job.users },
+          type: JobType.SendBirthdayMessage,
+        });
+      },
+      {
+        concurrency: 10,
+      },
+    );
+    await this.job.deleteJob({ id: { in: jobs.map((job) => job.id) } });
   }
 }

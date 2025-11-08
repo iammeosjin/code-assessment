@@ -3,6 +3,7 @@ import {
   Body,
   Controller,
   Delete,
+  HttpCode,
   HttpException,
   HttpStatus,
   Param,
@@ -32,6 +33,7 @@ export class UserController {
   }
 
   @Post('/user')
+  @HttpCode(200)
   async createUser(
     @Body() body: PostUserRequestDataDto,
   ): Promise<{ user: Omit<User, 'id'> & { id: string } }> {

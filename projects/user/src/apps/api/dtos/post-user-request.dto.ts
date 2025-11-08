@@ -3,15 +3,15 @@ import { IsDate, IsString } from 'class-validator';
 
 export class PostUserRequestDataDto {
   @IsString()
-  readonly firstName: string;
+  readonly firstName!: string;
 
   @IsString()
-  readonly lastName: string;
+  readonly lastName!: string;
 
   @IsDate()
   @Type(() => Date)
-  readonly dateOfBirth: Date;
+  readonly dateOfBirth!: Date;
 
   @IsString()
-  readonly location: string;
+  readonly location!: string;
 }
