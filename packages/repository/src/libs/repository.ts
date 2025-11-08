@@ -24,5 +24,6 @@ export interface Repository<T extends { id: ObjectId }> {
     data: Partial<Omit<T, 'id'>>,
   ): Promise<void>;
   delete(filter: ObjectId | Filter<T>): Promise<void>;
-  find(filter: ObjectId | Filter<T>): Promise<T | null>;
+  find(filter: ObjectId | Filter<T>): Promise<T[]>;
+  findOne(filter: ObjectId | Filter<T>): Promise<T | null>;
 }

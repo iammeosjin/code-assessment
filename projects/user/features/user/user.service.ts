@@ -1,4 +1,5 @@
 import { ObjectId, ObjectType } from '@boomering/object-id';
+import { Filter } from '@boomering/repository';
 import { Inject, Injectable } from '@nestjs/common';
 import { Tokens } from './libs/tokens';
 import { User } from './libs/types';
@@ -11,15 +12,25 @@ export class UserService {
     private readonly users: UserRepository,
   ) {}
 
-  async createUser(input: Omit<User, 'id'>) {
+  async createUser(
+    input: Omit<User, 'id' | 'dateTimeCreated' | 'dateTimeLastUpdated'>,
+  ) {
     const id = ObjectId.generate(ObjectType.User);
-    await this.users.create({
+    const user = {
       ...input,
+      dateTimeCreated: new Date(),
       id,
-    });
+    };
+    await this.users.create(user);
+
+    return user;
   }
 
   async deleteUser(id: ObjectId) {
     await this.users.delete(id);
+  }
+
+  find(filter: Filter<User>) {
+    return this.users.find(filter);
   }
 }

@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { ObjectId } from '@boomering/object-id';
 import { Decimal } from 'decimal.js';
-import { Binary, CollationOptions } from 'mongodb';
+import { Binary } from 'mongodb';
 import {
   Connection as DBConnection,
   IndexDefinition,
@@ -446,40 +448,10 @@ export class MongooseRepository<
     await this.model.deleteMany(serializeFilter(filter), options);
   }
 
-  public async find(
+  public async findOne(
     filter: ObjectId | Filter<TEntity>,
-    opts?: {
-      collation?: CollationOptions;
-      secondaryPreferred?: true;
-      fields?: (keyof TEntity)[];
-    },
   ): Promise<TEntity | null> {
     const options = {};
-
-    if (opts?.collation) {
-      Object.assign(options, {
-        collation: opts.collation,
-      });
-    }
-
-    if (opts?.secondaryPreferred) {
-      Object.assign(options, {
-        readPreference: 'secondaryPreferred',
-      });
-    }
-
-    if (opts?.fields) {
-      Object.assign(options, {
-        projection: {
-          _id: 1,
-          __t: 1,
-          ...R.compose(
-            R.fromPairs,
-            <never>R.map((item) => [item, 1]),
-          )(<string[]>R.difference(opts.fields, ['id'])),
-        },
-      });
-    }
 
     const serializedFilter = serializeFilter(
       filter instanceof ObjectId ? { id: filter } : filter,
@@ -492,5 +464,17 @@ export class MongooseRepository<
     }
 
     return deserializeItem(doc) as TEntity;
+  }
+
+  public async find(filter: ObjectId | Filter<TEntity>): Promise<TEntity[]> {
+    const options = {};
+
+    const serializedFilter = serializeFilter(
+      filter instanceof ObjectId ? { id: filter } : filter,
+    );
+
+    const docs = await this.model.find(serializedFilter, null, options);
+
+    return deserializeArray(docs) as TEntity[];
   }
 }

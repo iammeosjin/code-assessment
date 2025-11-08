@@ -4,7 +4,9 @@ export type User = {
   id: ObjectId;
   firstName: string;
   lastName: string;
-  birthMonthAndDay: string;
-  birthYear: number;
+  dateOfBirth: Date;
   location: string;
+  timeZone: string;
+  dateTimeCreated: Date;
+  dateTimeLastUpdated?: Date;
 };

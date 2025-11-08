@@ -72,6 +72,10 @@ export class ObjectId {
     return Buffer.from(base64, 'base64');
   }
 
+  public equals(other: ObjectId) {
+    return this._buffer.equals(<Uint8Array>other._buffer);
+  }
+
   public toString(encoding?: 'hex' | 'base64') {
     if (!encoding || encoding === 'base64') {
       return ObjectId._toUrlSafe(this._buffer);

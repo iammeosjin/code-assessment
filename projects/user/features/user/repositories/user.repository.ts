@@ -13,14 +13,11 @@ export function UserRepositoryFactory(connection: Connection): UserRepository {
       firstName: String,
       lastName: String,
       location: String,
-      birthMonthAndDay: String,
-      birthYear: Number,
+      dateOfBirth: Date,
+      timeZone: String,
       dateTimeCreated: Date,
       dateTimeLastUpdated: Date,
     },
-    [
-      [{ birthMonthAndDay: 1 }],
-      [{ firstName: 1, lastName: 1 }, { unique: true }],
-    ],
+    [[{ firstName: 1, lastName: 1 }, { unique: true }]],
   );
 }

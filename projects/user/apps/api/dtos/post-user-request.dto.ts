@@ -1,7 +1,5 @@
-import { Transform } from 'class-transformer';
-import { IsISO8601, IsString } from 'class-validator';
-import { DateTime } from 'luxon';
-import { IsIanaTimezone } from '../decorators/is-iana-timezone';
+import { Type } from 'class-transformer';
+import { IsDate, IsString } from 'class-validator';
 
 export class PostUserRequestDataDto {
   @IsString()
@@ -10,10 +8,10 @@ export class PostUserRequestDataDto {
   @IsString()
   readonly lastName: string;
 
-  @IsISO8601()
-  @Transform(({ value }) => DateTime.fromISO(value as string))
-  readonly dateOfBirth: DateTime;
+  @IsDate()
+  @Type(() => Date)
+  readonly dateOfBirth: Date;
 
-  @IsIanaTimezone()
-  location: string;
+  @IsString()
+  readonly location: string;
 }

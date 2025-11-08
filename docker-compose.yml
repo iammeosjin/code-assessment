@@ -1,6 +1,6 @@
 name: boomering
 services:
   mongo:
-    image: mongo:4.2.11-bionic
+    image: mongo:8.0
     ports:
       - 27017:27017
