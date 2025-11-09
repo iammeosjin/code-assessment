@@ -1,8 +1,6 @@
 import { program } from 'commander';
 
-program
-  .option('-m, --mode <mode>', 'async | api | graphql', 'api')
-  .version('0.1.0');
+program.option('-m, --mode <mode>', 'job | api', 'api').version('0.1.0');
 
 program.exitOverride();
 
@@ -13,5 +11,5 @@ try {
 }
 
 export const options = program.opts<{
-  mode: 'api';
+  mode: 'api' | 'job';
 }>();

@@ -1,4 +1,6 @@
+import { gotry } from '@boomering/common';
 import { ObjectId } from '@boomering/object-id';
+import { DuplicateKeyError } from '@boomering/repository';
 import {
   Body,
   Controller,
@@ -72,29 +74,64 @@ export class UserController {
       })
       .setZone('utc');
 
-    const user = await this.user.createUser({
-      dateOfBirth: dateOfBirth.toJSDate(),
-      location: body.location,
-      firstName: body.firstName,
-      lastName: body.lastName,
-      timeZone,
-    });
+    const createUser = async () => {
+      const user = await this.user.createUser({
+        dateOfBirth: dateOfBirth.toJSDate(),
+        location: body.location,
+        firstName: body.firstName,
+        lastName: body.lastName,
+        timeZone,
+      });
 
-    await this.job.addSendBirthdayMessageEntry({
-      user: user.id,
-      dueDate: dueDate.toJSDate(),
-    });
+      await this.job.addSendBirthdayMessageEntry({
+        user: user.id,
+        dueDate: dueDate.toJSDate(),
+      });
+      return user;
+    };
+
+    const [user, error] = await gotry<User, Error>(createUser());
+
+    if (error && error instanceof DuplicateKeyError) {
+      throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
+    }
+
+    if (error || !user) {
+      throw new HttpException(
+        `Encountered problem: ${error.message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
 
     return {
       user: {
-        ...user,
-        id: user.id.toString(),
+        ...user!,
+        id: user!.id.toString(),
       },
     };
   }
 
   @Delete('/user/:user')
-  async deleteUser(@Param('user') user: string): Promise<void> {
-    await this.user.deleteUser(ObjectId.from(user));
+  @HttpCode(200)
+  async deleteUser(@Param('user') userId: string): Promise<void> {
+    const user = await this.user.findOne({ id: ObjectId.from(userId) });
+    await this.user.deleteUser(ObjectId.from(userId));
+
+    if (user) {
+      const dueDate = DateTime.fromJSDate(user.dateOfBirth)
+        .set({
+          year: DateTime.now().setZone('utc').year,
+          hour: parseInt(this.config.get('JOB_SCHEDULE_TIME') || '9'),
+          minute: 0,
+          second: 0,
+          millisecond: 0,
+        })
+        .setZone('utc');
+
+      await this.job.removeSendBirthdayMessageEntry({
+        user: user.id,
+        dueDate: dueDate.toJSDate(),
+      });
+    }
   }
 }

@@ -33,7 +33,6 @@ export function IsISO8601(validationOptions?: ValidationOptions) {
       options: validationOptions,
       validator: {
         validate(value: any) {
-          console.log('validate', value);
           return (
             typeof value === 'string' &&
             DateTime.fromFormat(value, 'yyyy-MM-dd').isValid

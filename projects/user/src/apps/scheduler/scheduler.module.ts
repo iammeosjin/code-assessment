@@ -2,9 +2,9 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ScheduleModule } from '@nestjs/schedule';
-import { JobModule } from '../job/job.module';
-import { MessageModule } from '../message/message.module';
-import { UserModule } from '../user/user.module';
+import { JobModule } from '../../features/job/job.module';
+import { MessageModule } from '../../features/message/message.module';
+import { UserModule } from '../../features/user/user.module';
 import { SchedulerService } from './scheduler.service';
 
 @Module({

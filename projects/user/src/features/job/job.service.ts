@@ -17,6 +17,7 @@ export class JobService {
       status?: JobStatus;
     },
   ) {
+    console.log('input', input);
     const id = ObjectId.generate(ObjectType.Job);
     await this.jobs.create({
       status: JobStatus.Pending,
@@ -78,7 +79,7 @@ export class JobService {
     }
 
     const users: ObjectId[] = job.data.users.filter(
-      (user) => !user.equals(params.user),
+      (user) => !ObjectId.from(user.buffer).equals(params.user),
     );
 
     return this.updateJob(job.id, {
@@ -95,6 +96,13 @@ export class JobService {
 
   find(filter: Filter<Job>) {
     return this.jobs.find(filter);
+  }
+
+  async processJob(id: ObjectId) {
+    await this.updateJob(id, {
+      status: JobStatus.Processing,
+      dateTimeLastUpdated: new Date(),
+    });
   }
 
   async completeJob(id: ObjectId) {

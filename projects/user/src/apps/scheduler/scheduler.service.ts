@@ -6,10 +6,10 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { DateTime } from 'luxon';
 import asyncMap from 'p-map';
 import R from 'ramda';
-import { JobService } from '../job/job.service';
-import { JobStatus, JobType } from '../job/libs/types';
-import { MessageService } from '../message/message.service';
-import { UserService } from '../user/user.service';
+import { JobService } from '../../features/job/job.service';
+import { JobStatus, JobType } from '../../features/job/libs/types';
+import { MessageService } from '../../features/message/message.service';
+import { UserService } from '../../features/user/user.service';
 
 @Injectable()
 export class SchedulerService {
@@ -39,6 +39,8 @@ export class SchedulerService {
         const users = await this.user.find({
           id: { in: job.data.users.map((user) => ObjectId.from(user.buffer)) },
         });
+
+        await this.job.processJob(job.id);
 
         const [, error] = await gotry(
           asyncMap(

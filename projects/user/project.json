@@ -30,11 +30,19 @@
         "testTimeout": 60000
       }
     },
-    "start": {
+    "start:api": {
       "executor": "nx:run-commands",
       "outputs": ["{projectRoot}/src/libs/graphql-types.ts"],
       "options": {
-        "command": "ts-node --project ./tsconfig.app.json ./main.ts -m api",
+        "command": "ts-node --project ./tsconfig.app.json ./src/main.ts -m api",
+        "cwd": "projects/user"
+      }
+    },
+    "start:job": {
+      "executor": "nx:run-commands",
+      "outputs": ["{projectRoot}/src/libs/graphql-types.ts"],
+      "options": {
+        "command": "ts-node --project ./tsconfig.app.json ./src/main.ts -m job",
         "cwd": "projects/user"
       }
     }

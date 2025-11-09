@@ -335,6 +335,7 @@ export class MongooseRepository<
   }
 
   public async create(data: TEntity | Array<TEntity>): Promise<void> {
+    console.log('create', data);
     let serializedItems: Partial<RawItem>[];
     if (Array.isArray(data)) {
       serializedItems = data.map((item) =>
@@ -343,6 +344,7 @@ export class MongooseRepository<
     } else {
       serializedItems = [serializeItem(<never>flattenObject(data))];
     }
+    console.log('serializedItems', serializedItems);
     try {
       if (serializedItems.length > 1) {
         await this.model.insertMany(serializedItems);
@@ -437,15 +439,13 @@ export class MongooseRepository<
   }
 
   public async delete(filter: ObjectId | Filter<TEntity>): Promise<void> {
-    const options = {};
-
     if (filter instanceof ObjectId) {
-      await this.model.deleteOne({ _id: new Binary(filter.buffer) }, options);
+      await this.model.deleteOne({ _id: new Binary(filter.buffer) });
 
       return;
     }
 
-    await this.model.deleteMany(serializeFilter(filter), options);
+    await this.model.deleteMany(serializeFilter(filter));
   }
 
   public async findOne(

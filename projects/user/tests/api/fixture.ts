@@ -1,11 +1,10 @@
-import { faker } from '@faker-js/faker';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
 import { backOff } from 'exponential-backoff';
-import mongoose from 'mongoose';
 import supertest from 'supertest';
 import { ApiModule } from '../../src/apps/api/api.module';
+import '../setup';
 import { getPort } from './helpers/get-port';
 
 export async function setupFixture(opts?: {
@@ -16,7 +15,7 @@ export async function setupFixture(opts?: {
   config?: Record<string, unknown>;
 }) {
   const config = {
-    MONGODB_URI: `mongodb://localhost:27017/${faker.string.alpha()}`,
+    MONGODB_URI: `mongodb://localhost:27017/tests`,
     ...opts?.config,
   };
 
@@ -62,10 +61,7 @@ export async function setupFixture(opts?: {
     module,
     port,
     teardown: async () => {
-      const testDb = mongoose.createConnection(config.MONGODB_URI);
-      await testDb.dropDatabase();
       await app.close();
-      await mongoose.disconnect();
     },
   };
 }

@@ -27,10 +27,14 @@ export class UserService {
   }
 
   async deleteUser(id: ObjectId) {
-    await this.users.delete(id);
+    await this.users.delete({ id });
   }
 
   find(filter: Filter<User>) {
     return this.users.find(filter);
+  }
+
+  findOne(filter: Filter<User>) {
+    return this.users.findOne(filter);
   }
 }
