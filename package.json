@@ -43,6 +43,7 @@
     "mongodb": "^7.0.0",
     "mongoose": "^8.19.3",
     "nx": "^22.0.2",
+    "oxlint": "^1.26.0",
     "p-map": "~4.0.0",
     "ramda": "^0.32.0",
     "reflect-metadata": "^0.2.2",

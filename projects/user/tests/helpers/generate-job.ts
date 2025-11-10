@@ -16,6 +16,6 @@ export default function generateJob(params?: Partial<Job>): Job {
     },
     dueDate: new Date(),
     dateTimeCreated: new Date(),
-    ...(params || {}),
+    ...params,
   };
 }
