@@ -1,5 +1,23 @@
 name: boomering
 services:
+  api:
+    build:
+      context: .
+      dockerfile: projects/user/Dockerfile
+    working_dir: /usr/src/app
+    command: pnpm nx start:api user
+    env_file: [.env.local]
+    depends_on: [mongo]
+    ports: ["3000:3000"]
+
+  job:
+    build:
+      context: .
+      dockerfile: projects/user/Dockerfile
+    working_dir: /usr/src/app
+    command: pnpm nx start:job user
+    env_file: [.env.local]
+    depends_on: [mongo]
   mongo:
     image: mongo:8.0
     ports:
