@@ -21,7 +21,8 @@
     "paths": {
       "@boomering/object-id": ["packages/object-id/src/index.ts"],
       "@boomering/repository": ["packages/repository/src/index.ts"],
-      "@boomering/common": ["packages/common/src/index.ts"]
+      "@boomering/common": ["packages/common/src/index.ts"],
+      "@boomering/config": ["packages/config/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

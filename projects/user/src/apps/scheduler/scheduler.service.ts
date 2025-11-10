@@ -1,7 +1,7 @@
-import { gotry } from '@boomering/common';
+import { CatchError, gotry } from '@boomering/common';
+import { ConfigService } from '@boomering/config';
 import { ObjectId } from '@boomering/object-id';
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { DateTime } from 'luxon';
 import asyncMap from 'p-map';
@@ -20,13 +20,21 @@ export class SchedulerService {
     private readonly config: ConfigService,
   ) {}
 
-  @Cron(CronExpression.EVERY_MINUTE)
+  @Cron(CronExpression.EVERY_30_MINUTES)
+  @CatchError(function (this: SchedulerService, error) {
+    console.warn({
+      name: 'SchedulerService#sendBirthdayMessage',
+      error,
+    });
+  })
   async sendBirthdayMessage() {
     const now = DateTime.now().setZone('utc');
 
     const filter = {
       type: JobType.SendBirthdayMessage,
-      dueDate: { lesserThanOrEqual: now.startOf('hour').toJSDate() },
+      dueDate: {
+        lesserThanOrEqual: now.endOf('hour').minus({ minutes: 1 }).toJSDate(),
+      },
       status: { in: [JobStatus.Pending, JobStatus.Failed] },
     };
 
@@ -49,6 +57,7 @@ export class SchedulerService {
               const message = await this.message.findOne({
                 recipient: user.id,
               });
+
               if (
                 message?.dateTimeCreated.getFullYear() ===
                 new Date().getFullYear()
@@ -62,9 +71,10 @@ export class SchedulerService {
               });
             },
             {
-              concurrency: parseInt(
-                this.config.get('WORKER_CONCURRENCY') || '2',
-              ),
+              concurrency:
+                this.config.getNumber('WORKER_CONCURRENCY', {
+                  optional: true,
+                }) || 2,
             },
           ),
         );
@@ -92,23 +102,28 @@ export class SchedulerService {
     const jobs = await this.job.find(filter);
 
     const groupedJobs = jobs.reduce(
-      (groupedJobs, job) => {
-        const updatedJobs = groupedJobs[job.dueDate.toISOString()];
+      (result, job) => {
+        const key = job.dueDate.toISOString();
+        const updatedJobs = result[key];
 
         if (!updatedJobs) {
           return {
-            [job.dueDate.toISOString()]: {
+            ...result,
+            [key]: {
               dueDate: job.dueDate,
-              users: job.data.users,
+              users: job.data.users.map((user) => ObjectId.from(user.buffer)),
             },
           };
         }
 
         updatedJobs.users = Array.from(
-          new Set<ObjectId>([...updatedJobs.users, ...job.data.users]),
+          new Set<ObjectId>([
+            ...updatedJobs.users.map((user) => ObjectId.from(user.buffer)),
+            ...job.data.users.map((user) => ObjectId.from(user.buffer)),
+          ]),
         );
 
-        return groupedJobs;
+        return result;
       },
       {} as Record<string, { dueDate: Date; users: ObjectId[] }>,
     );

@@ -1,4 +1,4 @@
-import { ConfigService } from '@nestjs/config';
+import { ConfigService } from '@boomering/config';
 import { Test } from '@nestjs/testing';
 import { ApiModule } from './api.module';
 

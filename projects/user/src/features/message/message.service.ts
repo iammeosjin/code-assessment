@@ -1,7 +1,7 @@
+import { ConfigService } from '@boomering/config';
 import { ObjectId, ObjectType } from '@boomering/object-id';
 import { Filter } from '@boomering/repository';
 import { Inject, Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { Tokens } from './libs/tokens';
 import { Message } from './libs/types';
 import { MessageRepository } from './repositories/message.repository';
@@ -36,7 +36,7 @@ export class MessageService {
   }) {
     const body = `Hey, ${params.fullName} it’s your birthday`;
 
-    const response = await fetch(`${this.config.get('REQUEST_BIN_API_URL')}`, {
+    const response = await fetch(this.config.getString('REQUEST_BIN_API_URL'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

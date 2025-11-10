@@ -1,5 +1,5 @@
+import { ConfigModule, ConfigService } from '@boomering/config';
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ScheduleModule } from '@nestjs/schedule';
 import { JobModule } from '../../features/job/job.module';
@@ -9,11 +9,13 @@ import { SchedulerService } from './scheduler.service';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot(),
     MongooseModule.forRootAsync({
-      useFactory: (config: ConfigService) => ({
-        uri: config.get<string>('MONGODB_URI'),
-      }),
+      useFactory: (config: ConfigService) => {
+        return {
+          uri: config.getString('MONGODB_URI'),
+        };
+      },
       inject: [ConfigService],
     }),
     ScheduleModule.forRoot(),

@@ -335,7 +335,6 @@ export class MongooseRepository<
   }
 
   public async create(data: TEntity | Array<TEntity>): Promise<void> {
-    console.log('create', data);
     let serializedItems: Partial<RawItem>[];
     if (Array.isArray(data)) {
       serializedItems = data.map((item) =>
@@ -344,7 +343,6 @@ export class MongooseRepository<
     } else {
       serializedItems = [serializeItem(<never>flattenObject(data))];
     }
-    console.log('serializedItems', serializedItems);
     try {
       if (serializedItems.length > 1) {
         await this.model.insertMany(serializedItems);

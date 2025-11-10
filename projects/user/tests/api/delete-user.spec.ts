@@ -4,6 +4,8 @@ import { Tokens } from '../../src/features/user/libs/tokens';
 import { UserRepository } from '../../src/features/user/repositories/user.repository';
 import { setupFixture } from './fixture';
 
+import '../setup';
+
 describe('DELETE /user', () => {
   test.concurrent('delete user', async () => {
     const { request, teardown, module } = await setupFixture();

@@ -17,14 +17,14 @@ export class JobService {
       status?: JobStatus;
     },
   ) {
-    console.log('input', input);
-    const id = ObjectId.generate(ObjectType.Job);
-    await this.jobs.create({
+    const job = {
       status: JobStatus.Pending,
       dateTimeCreated: new Date(),
-      id,
+      id: ObjectId.generate(ObjectType.Job),
       ...input,
-    });
+    };
+    await this.jobs.create(job);
+    return job;
   }
 
   async updateJob(

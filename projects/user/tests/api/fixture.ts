@@ -1,10 +1,10 @@
+import { ConfigService } from '@boomering/config';
 import { ValidationPipe } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
 import { backOff } from 'exponential-backoff';
 import supertest from 'supertest';
 import { ApiModule } from '../../src/apps/api/api.module';
-import '../setup';
+import { testConfig } from '../helpers/config';
 import { getPort } from './helpers/get-port';
 
 export async function setupFixture(opts?: {
@@ -15,7 +15,7 @@ export async function setupFixture(opts?: {
   config?: Record<string, unknown>;
 }) {
   const config = {
-    MONGODB_URI: `mongodb://localhost:27017/tests`,
+    MONGODB_URI: testConfig.MONGODB_URI,
     ...opts?.config,
   };
 

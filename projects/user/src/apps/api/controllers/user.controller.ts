@@ -1,4 +1,5 @@
 import { gotry } from '@boomering/common';
+import { ConfigService } from '@boomering/config';
 import { ObjectId } from '@boomering/object-id';
 import { DuplicateKeyError } from '@boomering/repository';
 import {
@@ -12,7 +13,6 @@ import {
   Post,
   UsePipes,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { getTimeZones, TimeZone } from '@vvo/tzdb';
 import { DateTime, IANAZone } from 'luxon';
 import R from 'ramda';
@@ -67,7 +67,8 @@ export class UserController {
     const dueDate = dateOfBirth
       .set({
         year: DateTime.now().setZone('utc').year,
-        hour: parseInt(this.config.get('JOB_SCHEDULE_TIME') || '9'),
+        hour:
+          this.config.getNumber('JOB_SCHEDULE_TIME', { optional: true }) || 9,
         minute: 0,
         second: 0,
         millisecond: 0,
@@ -121,7 +122,8 @@ export class UserController {
       const dueDate = DateTime.fromJSDate(user.dateOfBirth)
         .set({
           year: DateTime.now().setZone('utc').year,
-          hour: parseInt(this.config.get('JOB_SCHEDULE_TIME') || '9'),
+          hour:
+            this.config.getNumber('JOB_SCHEDULE_TIME', { optional: true }) || 9,
           minute: 0,
           second: 0,
           millisecond: 0,

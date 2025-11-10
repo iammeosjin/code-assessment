@@ -1,5 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { DateTime } from 'luxon';
+import '../setup';
 import { setupFixture } from './fixture';
 
 describe('POST /user', () => {
