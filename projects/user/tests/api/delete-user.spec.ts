@@ -1,10 +1,9 @@
 import { faker } from '@faker-js/faker';
+import { getTimeZones } from '@vvo/tzdb';
 import { DateTime } from 'luxon';
 import { Tokens } from '../../src/features/user/libs/tokens';
 import { UserRepository } from '../../src/features/user/repositories/user.repository';
 import { setupFixture } from './fixture';
-
-import '../setup';
 
 describe('DELETE /user', () => {
   test.concurrent('delete user', async () => {
@@ -12,7 +11,7 @@ describe('DELETE /user', () => {
     const body = {
       firstName: faker.person.firstName(),
       lastName: faker.person.lastName(),
-      location: faker.location.country(),
+      location: faker.helpers.arrayElement(getTimeZones()).countryName,
       dateOfBirth: DateTime.now().toFormat('yyyy-MM-dd'),
     };
     const createUserResponse = await request

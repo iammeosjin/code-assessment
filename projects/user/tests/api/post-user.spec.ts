@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
+import { getTimeZones } from '@vvo/tzdb';
 import { DateTime } from 'luxon';
-import '../setup';
 import { setupFixture } from './fixture';
 
 describe('POST /user', () => {
@@ -9,7 +9,7 @@ describe('POST /user', () => {
     const body = JSON.stringify({
       firstName: faker.person.firstName(),
       lastName: faker.person.lastName(),
-      location: faker.location.country(),
+      location: faker.helpers.arrayElement(getTimeZones()).countryName,
       dateOfBirth: DateTime.now().toFormat('yyyy-MM-dd'),
     });
 
@@ -28,7 +28,7 @@ describe('POST /user', () => {
     const body = {
       firstName: faker.person.firstName(),
       lastName: faker.person.lastName(),
-      location: faker.location.country(),
+      location: faker.helpers.arrayElement(getTimeZones()).countryName,
       dateOfBirth: DateTime.now().toFormat('yyyy-MM-dd'),
     };
 
@@ -43,7 +43,7 @@ describe('POST /user', () => {
       .send(
         JSON.stringify({
           ...body,
-          location: faker.location.country(),
+          location: faker.helpers.arrayElement(getTimeZones()).countryName,
           dateOfBirth: DateTime.now()
             .minus({ years: 11 })
             .toFormat('yyyy-MM-dd'),
@@ -59,23 +59,23 @@ describe('POST /user', () => {
     test.concurrent.each([
       {
         lastName: faker.person.lastName(),
-        location: faker.location.country(),
+        location: faker.helpers.arrayElement(getTimeZones()).countryName,
         dateOfBirth: DateTime.now().toFormat('yyyy-MM-dd'),
       },
       {
         firstName: faker.person.firstName(),
-        location: faker.location.country(),
-        dateOfBirth: DateTime.now().toFormat('yyyy-MM-dd'),
-      },
-      {
-        firstName: faker.person.firstName(),
-        lastName: faker.person.lastName(),
+        location: faker.helpers.arrayElement(getTimeZones()).countryName,
         dateOfBirth: DateTime.now().toFormat('yyyy-MM-dd'),
       },
       {
         firstName: faker.person.firstName(),
         lastName: faker.person.lastName(),
-        location: faker.location.country(),
+        dateOfBirth: DateTime.now().toFormat('yyyy-MM-dd'),
+      },
+      {
+        firstName: faker.person.firstName(),
+        lastName: faker.person.lastName(),
+        location: faker.helpers.arrayElement(getTimeZones()).countryName,
       },
       {
         firstName: faker.person.firstName(),
